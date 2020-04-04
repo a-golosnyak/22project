@@ -6,7 +6,7 @@ use App\Animal;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class GiveVoice extends Command
+class GiveVoiceAll extends Command
 {
     private $out;
     /**
@@ -14,14 +14,14 @@ class GiveVoice extends Command
      *
      * @var string
      */
-    protected $signature = 'voice {name}';
+    protected $signature = 'voice';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Allow animal to say.';
+    protected $description = 'All animals random voice.';
 
     /**
      * Create a new command instance.
@@ -41,13 +41,16 @@ class GiveVoice extends Command
      */
     public function handle()
     {
-        $animal = Animal::where('name', $this->argument()['name'])->get();
+        $animals = Animal::all();
 
-        if(count($animal)<1){
-            $this->out->writeln('We do not have animal with name ' . $this->argument()['name']);
-        }
-        else {
-            $this->out->writeln($animal[0]->voice);
+        foreach ($animals as $animal)
+        {
+            $item = $animals->random(1)->first();
+            $this->out->writeln($item->voice);
+
+            $animals = $animals->reject(function ($animal) use ($item){
+                return $animal->id === $item->id;
+            });
         }
     }
 }

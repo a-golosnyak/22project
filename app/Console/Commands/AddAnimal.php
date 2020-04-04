@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Animal;
+use App\Role;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -40,8 +42,23 @@ class AddAnimal extends Command
      */
     public function handle()
     {
-        $this->out->writeln('Here ' . $this->argument()['animal'] . ' ' . $this->argument()['name']);
+        $animal = new Animal();
+
+        $role = Role::where('name', $this->argument()['animal'])->get();
+
+        if(count($role)<1)
+        {
+            $role->name = $this->argument()['animal'];
+            $role->save();
+        }
+        else
+            $role = $role[0];
+
+        $animal->name = str_replace('"', '', $this->argument()['name']);
         $voice = $this->ask('What is ' . $this->argument()['name'] . '\'s voice?');
         $this->out->writeln($this->argument()['name'] . ' can say ' . $voice);
+        $animal->voice = $voice;
+        $animal->role_id = $role->id;
+        $animal->save();
     }
 }
