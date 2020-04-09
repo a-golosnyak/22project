@@ -48,6 +48,7 @@ class AddAnimal extends Command
 
         if(count($role)<1)
         {
+            $role = new Role();
             $role->name = $this->argument()['animal'];
             $role->save();
         }
